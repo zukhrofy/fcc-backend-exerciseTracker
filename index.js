@@ -16,8 +16,6 @@ const userSchema = new Schema({
   username: { type: String, required: true },
 });
 
-const User = mongoose.model("User", userSchema);
-
 const exerciseSchema = new Schema({
   user: {
     type: Schema.Types.ObjectId,
@@ -39,6 +37,7 @@ const exerciseSchema = new Schema({
   },
 });
 
+const User = mongoose.model("User", userSchema);
 const Exercise = mongoose.model("Exercise", exerciseSchema);
 
 app.get("/", (req, res) => {
@@ -82,9 +81,8 @@ app.post("/api/users/:_id/exercises", async (req, res) => {
         _id: user._id,
       });
     }
-    
+
     res.json({ error: "User not found" });
-  
   } catch (error) {
     res.json({ error: "can't add new exercise" });
   }
@@ -94,14 +92,11 @@ app.get("/api/users/:_id/logs", async (req, res) => {
   try {
     const { _id } = req.params;
     const { from, to, limit } = req.query;
-    
+
     const user = await User.findById(_id);
     let exercises = [];
     if (user) {
-      exercises = await Exercise.find({ user: _id }).select([
-        "-_id",
-        "-user",
-      ]);
+      exercises = await Exercise.find({ user: _id }).select(["-_id", "-user"]);
       exercises = exercises.map((exercise) => {
         return {
           ...exercise._doc,
@@ -130,7 +125,6 @@ app.get("/api/users/:_id/logs", async (req, res) => {
       _id: user._id,
       log: exercises,
     });
-    
   } catch (err) {
     console.log(err);
   }
@@ -138,7 +132,7 @@ app.get("/api/users/:_id/logs", async (req, res) => {
 
 mongoose
   .connect(
-    "mongodb+srv://abbarzukhrofy:mamasasa@zukhrofy.xvvdwqj.mongodb.net/Exercise-tracker"
+    "mongodb+srv://abbarzukhrofy:mamasasa@zukhrofy.xvvdwqj.mongodb.net/Exercise-tracker",
   )
   .then(() => {
     // listen for requests
